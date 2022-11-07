@@ -31,6 +31,15 @@ You can now add `$kubernetes_info[context]` (and other supported keys) to
 **Note:** You _must_ call the `kubernetes-info` function in the
 `prompt_name_precmd` hook function
 
+## Note about Usage
+
+- This Prezto module will not work if `kubectl` is installed through `gcloud components`. You must
+  install `kubectl` and keep the directory in a place where zsh knows about it and can load it into
+  the `$+commands` map. This map is checked to ensure that kubectl exists before this module is
+  loaded. If `kubectl` is installed through `gcloud components`, then the binary is loaded into the
+  `$PATH` dynamically thourgh `/.../google-cloud-sdk/path.zsh.inc`, which probably happens _after_
+  the prompt is built.
+
 ### Authors
 
 - [Siddharth Kannan](https://github.com/icyflame)
