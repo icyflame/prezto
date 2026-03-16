@@ -10,12 +10,12 @@
 #
 # Prompt format:
 #
-# # directory k8s:context ns:namespace on git:branch state C:last_exit_code
+# # directory k8s:context ns:namespace on git:branch state [Xs] C:last_exit_code
 # $ command
 #
 # Example:
 #
-# # ~/work/notes k8s:work-dev ns:default on git:master x C:42
+# # ~/work/notes k8s:work-dev ns:default on git:master x [3s] C:42
 # $
 #
 # Useful documents:
@@ -31,7 +31,19 @@ function prompt_ys1_help {
   '
 }
 
+function prompt_ys1_preexec {
+  _prompt_ys1_cmd_start=$EPOCHSECONDS
+}
+
 function prompt_ys1_precmd {
+  if (( _prompt_ys1_cmd_start > 0 )); then
+    local elapsed=$(( EPOCHSECONDS - _prompt_ys1_cmd_start ))
+	_prompt_ys1_cmd_elapsed=" %F{white}[${elapsed}s]%f"
+    _prompt_ys1_cmd_start=0
+  else
+    _prompt_ys1_cmd_elapsed=''
+  fi
+
   if (( $+functions[git-info] )); then
     git-info
   fi
@@ -48,8 +60,13 @@ function prompt_ys1_setup {
 
   autoload -Uz add-zsh-hook
   autoload -Uz vcs_info
+  zmodload zsh/datetime
 
+  add-zsh-hook preexec prompt_ys1_preexec
   add-zsh-hook precmd prompt_ys1_precmd
+
+  _prompt_ys1_cmd_start=0
+  _prompt_ys1_cmd_elapsed=''
 
   # Set git-info parameters.
   zstyle ':prezto:module:git:info' verbose 'yes'
@@ -69,6 +86,7 @@ function prompt_ys1_setup {
 ${kubernetes_info[context]}\
 ${kubernetes_info[namespace]}\
 ${git_info[prompt]}\
+${_prompt_ys1_cmd_elapsed}\
  \
 %(?..C:%F{red}$?%f)
 %{%F{red}%}$ %{$reset_color%}'
