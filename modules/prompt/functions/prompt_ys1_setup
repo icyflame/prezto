@@ -38,7 +38,11 @@ function prompt_ys1_preexec {
 function prompt_ys1_precmd {
   if (( _prompt_ys1_cmd_start > 0 )); then
     local elapsed=$(( EPOCHSECONDS - _prompt_ys1_cmd_start ))
-	_prompt_ys1_cmd_elapsed=" %F{white}[${elapsed}s]%f"
+	local elapsed_readable="${elapsed}s";
+	if (( $elapsed > 60 )); then
+	  elapsed_readable="$(( elapsed / 60 ))m $(( elapsed % 60))s";
+	fi
+	_prompt_ys1_cmd_elapsed=" %F{white}[${elapsed_readable}]%f"
     _prompt_ys1_cmd_start=0
   else
     _prompt_ys1_cmd_elapsed=''
